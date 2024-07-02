@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import MainMenu from './pages/MainMenu';
 import StayIn from './pages/StayIn';
 import GoOut from './pages/GoOut';
+import GoOutResults from './pages/GoOutResults';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
@@ -23,6 +24,7 @@ function App() {
           <Route path="/" element={<MainMenu />} />
           <Route path="/stay-in" element={<StayIn />} />
           <Route path="/go-out" element={<GoOut />} />
+          <Route path="/go-out-results" element={<GoOutResults />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
