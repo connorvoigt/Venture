@@ -56,11 +56,11 @@ body {
     border-radius: 10px;
     margin-top: 100px;
   }
-  
+
   .main-menu h1 {
     font-size: 3rem;
-    margin-bottom: 2rem;
-    color: #333;
+    margin-bottom: 5rem;
+    color: #ff0000;
   }
   
   .button-container {
