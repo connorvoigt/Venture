@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import '../styles.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,21 +16,21 @@ const Login = () => {
     <div className="container">
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
+        <div className="form-group">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
             required
           />
         </div>
-        <div>
-          <label>Password:</label>
+        <div className="form-group">
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
             required
           />
         </div>

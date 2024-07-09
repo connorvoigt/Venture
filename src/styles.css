@@ -45,6 +45,23 @@ body {
   nav ul li a:hover {
     background-color: #555;
   }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  
+  .form-group input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  
+  .form-group input::placeholder {
+    color: #aaa;
+  }
   
   .container {
     text-align: center;
@@ -152,6 +169,21 @@ body {
     background-color: #0056b3;
   }
   
+.pulse {
+  animation: pulse-animation 1s infinite;
+}
+
+@keyframes pulse-animation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
   .results-container {
     display: flex;
     margin-top: 100px;
@@ -217,5 +249,9 @@ body {
     cursor: pointer;
     font-size: 1.5rem;
     margin-left: 1rem;
+  }
+  .error {
+    color: red;
+    margin-top: 0.5rem;
   }
   
