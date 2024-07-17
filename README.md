@@ -2,9 +2,17 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## Backend Scripts
 
-In the project directory, you can run:
+In the backend directory, you can run:
+
+### 'python scrapeApp.py'
+
+Starts the backend server.
+
+## Frontend Scripts
+
+In the frontend directory, you can run:
 
 ### `npm start`
 
