@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../go_Out.css';
 import semiCircleImage from '../semiCircle.png';
@@ -10,28 +10,41 @@ const GoOut = () => {
   const [endDate, setEndDate] = useState('');
   const [results, setResults] = useState(null);
 
-  const handleSearch = () => {
-    fetch('http://127.0.0.1:5000/scrape', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        genre,
-        location,
-        startDate,
-        endDate,
-      }),
-    })
-    .then(response => {
-      return response.json();
-    })
-    .then(data => {
-      setResults(data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
+  useEffect(() => {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      if (input.value === '') {
+        input.classList.add('input-error');
+      } else {
+        input.classList.remove('input-error');
+      }
     });
+  }, [genre, location, startDate, endDate]);
+
+  const handleSearch = () => {
+    if (genre && location && startDate && endDate) {
+      fetch('http://127.0.0.1:5000/scrape', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          genre,
+          location,
+          startDate,
+          endDate,
+        }),
+      })
+      .then(response => {
+        return response.json();
+      })
+      .then(data => {
+        setResults(data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    }
   };
 
   return (
@@ -57,12 +70,11 @@ const GoOut = () => {
             <input list="locations" id="location" name="location" placeholder="Select or type" value={location} onChange={(e) => setLocation(e.target.value)} className="centered-dropdown"/>
           </div>
           <div>
-            <label htmlFor="price">Start Date</label>
-            <input list="startDates" id="startDate" name="startDates" placeholder="YYYY-MM-DD" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="centered-dropdown" />
-          </div>
+            <label htmlFor="startDate">Start Date</label>
+            <input type="date" id="startDate" name="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="centered-dropdown" />          </div>
           <div>
-            <label htmlFor="time">End Date</label>
-            <input list="endDates" id="endDate" name="endDate" placeholder="YYYY-MM-DD" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="centered-dropdown"/>
+            <label htmlFor="endDate">End Date</label>
+            <input type="date" id="endDate" name="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="centered-dropdown"/>
           </div>
         </div>
         <button className="search-button" onClick={handleSearch}>Search!</button>
