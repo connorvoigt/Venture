@@ -27,9 +27,6 @@ def scrape():
     
     response = requests.get(search_url)
     
-    if response.status_code != 200:
-        raise Exception(f"Failed to retrieve events: {response.status_code}")
-    
     soup = BeautifulSoup(response.content, 'html.parser')
 
     section = soup.find('ul', class_='SearchResultPanelContentEventCardList-module__eventList___1YEh_')
