@@ -140,12 +140,12 @@
     padding: 10px;
 }
   
-.results-container th:nth-child(1), .results-container td:nth-child(1) { width: 200px; } /* Name */
-.results-container th:nth-child(2), .results-container td:nth-child(2) { width: 250px; } /* Date */
-.results-container th:nth-child(3), .results-container td:nth-child(3) { width: 200px; } /* Place */
-.results-container th:nth-child(4), .results-container td:nth-child(4) { width: 180px; } /* Price */
-.results-container th:nth-child(5), .results-container td:nth-child(5) { width: 120px; } /* Link */
-.results-container th:nth-child(6), .results-container td:nth-child(6) { width: 120px; } /* Image */
+.results-container th:nth-child(1), .results-container td:nth-child(1) { width: 200px; }
+.results-container th:nth-child(2), .results-container td:nth-child(2) { width: 250px; }
+.results-container th:nth-child(3), .results-container td:nth-child(3) { width: 200px; }
+.results-container th:nth-child(4), .results-container td:nth-child(4) { width: 180px; }
+.results-container th:nth-child(5), .results-container td:nth-child(5) { width: 120px; }
+.results-container th:nth-child(6), .results-container td:nth-child(6) { width: 120px; }
 
 .results-container td:not(:last-child) {
     border-right: 1px solid #ddd;

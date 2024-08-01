@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import '../go_Out.css';
 import semiCircleImage from '../semiCircle.png';
+import Modal from './modal.js';
+import './modal.css';
 
 const GoOut = () => {
   const [genre, setGenre] = useState('');
@@ -9,6 +11,10 @@ const GoOut = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [results, setResults] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalStyle, setModalStyle] = useState({});
+  const [sortBy, setSortBy] = useState('date');
+  const filterButtonRef = useRef(null);
 
   useEffect(() => {
     const inputs = document.querySelectorAll('input');
@@ -44,6 +50,104 @@ const GoOut = () => {
       .catch((error) => {
         console.error('Error:', error);
       });
+    }
+  };
+
+  const updateModalPosition = () => {
+    if (filterButtonRef.current) {
+      const buttonRect = filterButtonRef.current.getBoundingClientRect();
+      setModalStyle({
+        position: 'absolute',
+        top: `${buttonRect.top}px`,
+        left: `${buttonRect.left - 400}px`,
+      });
+    }
+  };
+
+  const handleFilter = () => {
+    if (filterButtonRef.current) {
+      updateModalPosition();
+      setShowModal(true);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', updateModalPosition);
+    return () => {
+      window.removeEventListener('scroll', updateModalPosition);
+    };
+  }, []);
+
+  const handleModalClose = () => {
+    setShowModal(false);
+  };
+
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+  };
+
+  const applySorting = () => {
+    if (results) {
+      let sortedResults = [...results];
+      if (sortBy === 'date') {
+        sortedResults.sort((a, b) => {
+          const parseDate = (dateString) => {
+            const today = new Date();
+            const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            
+            if (dateString.toLowerCase().includes("tomorrow")) {
+              const tmw = new Date(today);
+              tmw.setDate(today.getDate() + 1);
+              return tmw;
+            } 
+            const dayIndex = weekDays.findIndex(day => dateString.toLowerCase().includes(day.toLowerCase()));
+            if (dayIndex !== -1) {
+              const diff = (dayIndex - today.getDay() + 7) % 7;
+              const targetDate = new Date(today);
+              targetDate.setDate(today.getDate() + diff);
+              return targetDate;
+            } 
+            const datePart = dateString.split('•').map(part => part.trim());
+            const date = new Date(datePart);
+            return date;
+          };
+          const dateA = parseDate(a.Date);
+          const dateB = parseDate(b.Date);
+          if (dateA.getDate() === dateB.getDate()) {
+            if (dateA.getMonth() === dateB.getMonth()) {
+              return dateA.getFullYear() - dateB.getFullYear();
+            }
+            else {
+              return dateA.getMonth() - dateB.getMonth();
+            }
+          }
+          if (dateA.getDate() === 'To') {
+            return -1;
+          }
+          if (dateB.getDate() === 'To') {
+            return 1;
+          }
+          return dateA.getDate() - dateB.getDate();
+        });
+      } 
+      else if (sortBy === 'price') {
+        const numberPresent = (str) => /\d/.test(str);
+
+        const notValue = sortedResults.filter(result => !numberPresent(result.Price));
+        const priceVal = sortedResults.filter(result => numberPresent(result.Price));
+
+        priceVal.sort((a, b) => {
+          const numA = parseFloat(a.Price.replace(/[^0-9.]/g, ''));
+          const numB = parseFloat(b.Price.replace(/[^0-9.]/g, ''));
+          return numA - numB;
+        });
+
+        sortedResults = [...notValue, ...priceVal];
+      } 
+      else if (sortBy === 'name') {
+        sortedResults.sort((a, b) => a.Name.localeCompare(b.Name));
+      }
+      setResults(sortedResults);
     }
   };
 
@@ -83,7 +187,21 @@ const GoOut = () => {
         <div className="results-container">
           <h2 className="results-title">Results</h2>
           <div className="header">
-            <div className="filter"><button className="filter-button">FILTER ≡</button></div>
+            <div className="filter">
+              <button ref={filterButtonRef} onClick={handleFilter} className="filter-button">FILTER ≡</button>
+              <Modal showModal={showModal} style={modalStyle} onClose={handleModalClose}>
+                <h2 className="sort-by-title">Sort By:</h2>
+                <div className="radio" onChange={handleSortChange}>
+                  <label className="radio-label" htmlFor="date">Date</label>
+                  <input type="radio" value="date" name="sortBy" id="date" />
+                  <label className="radio-label" htmlFor="price">Price</label>
+                  <input type="radio" value="price" name="sortBy" id="price" />
+                  <label className="radio-label" htmlFor="name">Name</label>
+                  <input type="radio" value="name" name="sortBy" id="name" />
+                </div>
+                <button className="apply-button" onClick={applySorting}>Apply</button>
+              </Modal>
+            </div>
             <div>Name</div>
             <div>Date</div>
             <div>Place</div>
