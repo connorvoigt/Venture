@@ -1,97 +1,189 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import '../stayIn.css';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import '../go_Out.css';
 import semiCircleImage from '../semiCircle.png';
 
-const StayIn = () => {
-  const [genre, setGenre] = useState('');
-  const [location, setLocation] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [results, setResults] = useState(null);
+const hostingSiteUrls = {
+  'Amazon Prime': 'https://www.amazon.com/gp/video/storefront',
+  'Netflix': 'https://www.netflix.com',
+  'Hulu': 'https://www.hulu.com',
+  'Disney+': 'https://www.disneyplus.com',
+  'HBO Max': 'https://www.hbomax.com',
+  'Apple TV+': 'https://tv.apple.com'
+};
 
-  const handleSearch = () => {
-    fetch('http://127.0.0.1:5000/scrape', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        genre,
-        location,
-        startDate,
-        endDate,
-      }),
-    })
-    .then(response => {
-      return response.json();
-    })
-    .then(data => {
-      setResults(data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
+const presets = [
+  {
+    currentMood: 'happy',
+    duration: '90',
+    genre: 'comedy',
+    actors: 'Will Ferrell'
+  },
+  {
+    currentMood: 'sad',
+    duration: '120',
+    genre: 'drama',
+    actors: 'Meryl Streep'
+  },
+  {
+    currentMood: 'relaxed',
+    duration: '60',
+    genre: 'documentary',
+    actors: 'David Attenborough'
+  },
+  {
+    currentMood: 'anxious',
+    duration: '30',
+    genre: 'thriller',
+    actors: 'Emily Blunt'
+  },
+  {
+    currentMood: 'happy',
+    duration: '110',
+    genre: 'action',
+    actors: 'Chris Hemsworth'
+  }
+];
+
+const StayIn = () => {
+  const [preferences, setPreferences] = useState({
+    currentMood: 'happy',
+    duration: '120',
+    genre: 'comedy',
+    actors: 'Tom Hanks'
+  });
+
+  const [results, setResults] = useState(null);
+  const [showRecommendations, setShowRecommendations] = useState(false);
+
+  useEffect(() => {
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
+      if (input.value === '') {
+        input.classList.add('input-error');
+      } else {
+        input.classList.remove('input-error');
+      }
     });
+  }, [preferences]);
+
+  const handleChange = (e) => {
+    setPreferences({
+      ...preferences,
+      [e.target.id]: e.target.value
+    });
+  };
+
+  const handleRandomPreset = () => {
+    const randomPreset = presets[Math.floor(Math.random() * presets.length)];
+    setPreferences(randomPreset);
+  };
+
+  const handleSearch = async () => {
+    try {
+      const response = await fetch('http://localhost:5001/recommend', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(preferences)
+      });
+
+      const data = await response.json();
+      const recommendationsArray = data.recommendations.split('###').map(rec => rec.trim()).filter(rec => rec);
+      setResults(recommendationsArray.map((recommendation) => {
+        const lines = recommendation.split('\n').map(l => l.trim()).filter(l => l);
+        const titleLine = lines.find(l => l.startsWith('Title:'));
+        const genreLine = lines.find(l => l.startsWith('Genre:'));
+        const descriptionLine = lines.find(l => l.startsWith('Description:'));
+        const hostingLine = lines.find(l => l.includes("Available on:"));
+
+        return {
+          title: titleLine ? titleLine.split('Title:')[1].trim() : '',
+          genre: genreLine ? genreLine.split('Genre:')[1].trim() : '',
+          description: descriptionLine ? descriptionLine.split('Description:')[1].trim() : '',
+          hostingSite: hostingLine ? hostingLine.split("Available on:")[1].trim() : '',
+        };
+      }));
+      setShowRecommendations(true);
+    } catch (error) {
+      console.error("Error fetching recommendations", error);
+    }
+  };
+
+  const handleBackToSearch = () => {
+    setShowRecommendations(false);
+    setResults(null);
   };
 
   return (
     <div className="go-out-container">
-      <img src={semiCircleImage} className="semiCircle"/>
+      <img src={semiCircleImage} className="semiCircle" alt="Decorative semicircle"/>
       <Link to="/" className="home-button">Home</Link>
-      <div className="venture-box">
-        <h1 className="title">Venture In!</h1>
-        <div className="dropdown-container">
-          <div>
-            <label htmlFor="genre">Genre</label>
-            <input list="genres" id="genre" name="genre" placeholder="Select or type" value={genre} onChange={(e) => setGenre(e.target.value)} className="centered-dropdown"/>
-            <datalist id="genres">
-              <option value="Rock" />
-              <option value="Jazz" />
-              <option value="Pop" />
-              <option value="Electronic" />
-              <option value="Hip Hop" />
-            </datalist>
-          </div>
-          <div>
-            <label htmlFor="range">Location</label>
-            <input list="locations" id="location" name="location" placeholder="Select or type" value={location} onChange={(e) => setLocation(e.target.value)} className="centered-dropdown"/>
-          </div>
-          <div>
-            <label htmlFor="price">Start Date</label>
-            <input list="startDates" id="startDate" name="startDates" placeholder="YYYY-MM-DD" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="centered-dropdown" />
-          </div>
-          <div>
-            <label htmlFor="time">End Date</label>
-            <input list="endDates" id="endDate" name="endDate" placeholder="YYYY-MM-DD" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="centered-dropdown"/>
-          </div>
-        </div>
-        <button className="search-button" onClick={handleSearch}>Search!</button>
-      </div>
-      {results && results.length > 0 && results[0].Name && (
+      {showRecommendations ? (
         <div className="results-container">
-          <h2 className="results-title">Results</h2>
+          <h2 className="results-title">Recommendations</h2>
           <div className="header">
-            <div className="filter"><button className="filter-button">FILTER ≡</button></div>
-            <div>Name</div>
-            <div>Date</div>
-            <div>Place</div>
-            <div>Price</div>
+            <div>Title</div>
+            <div>Genre</div>
+            <div>Description</div>
+            <div>Hosting Site</div>
             <div>Link</div>
           </div>
           <table>
             <tbody>
-            {results.map((result, index) => (
-              <tr key={index} onClick={() => window.open(result.EventURL, '_blank')}>
-                <td><div className="cell-content"><img src={result.ImageURL} className="image"/></div></td>
-                <td><div className="cell-content">{result.Name}</div></td>
-                <td><div className="cell-content">{result.Date}</div></td>
-                <td><div className="cell-content">{result.Place}</div></td>
-                <td><div className="cell-content">{result.Price}</div></td>
-                <td><div className="cell-content"><button className="buy-button" onClick={(e) => {e.stopPropagation(); window.open(result.EventURL, '_blank');}}>Venture On!</button></div></td>
-              </tr>
-            ))}
+              {results.map((result, index) => (
+                <tr key={index}>
+                  <td><div className="cell-content">{result.title}</div></td>
+                  <td><div className="cell-content">{result.genre}</div></td>
+                  <td><div className="cell-content">{result.description}</div></td>
+                  <td><div className="cell-content">{result.hostingSite}</div></td>
+                  <td>
+                    {result.hostingSite && (
+                      <div className="cell-content">
+                        <a href={hostingSiteUrls[result.hostingSite]} target="_blank" rel="noopener noreferrer">
+                          <button className="search-button">Watch on {result.hostingSite}</button>
+                        </a>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
+          <button className="search-button-2" onClick={handleBackToSearch}>Back to Search</button>
+        </div>
+      ) : (
+        <div className="venture-box">
+          <h1 className="title">Venture On... line!</h1>
+          <div className="dropdown-container">
+            <div className="dropdown-item">
+              <label htmlFor="currentMood">Mood</label>
+              <select id="currentMood" className="centered-dropdown" value={preferences.currentMood} onChange={handleChange}>
+                <option value="">Select</option>
+                <option value="happy">Happy</option>
+                <option value="sad">Sad</option>
+                <option value="relaxed">Relaxed</option>
+                <option value="anxious">Anxious</option>
+              </select>
+            </div>
+            <div className="dropdown-item">
+              <label htmlFor="duration">Length in Minutes</label>
+              <input type="number" id="duration" className="centered-dropdown" value={preferences.duration} onChange={handleChange} />
+            </div>
+            <div className="dropdown-item">
+              <label htmlFor="genre">Favorite Genre</label>
+              <input type="text" id="genre" className="centered-dropdown" value={preferences.genre} onChange={handleChange} />
+            </div>
+            <div className="dropdown-item">
+              <label htmlFor="actors">Actors/Actresses</label>
+              <input type="text" id="actors" className="centered-dropdown" value={preferences.actors} onChange={handleChange} />
+            </div>
+          </div>
+          <div className="button-container">
+            <button className="search-button-2" onClick={handleRandomPreset}>Random Preset</button>
+            <button className="search-button" onClick={handleSearch}>Search!</button>
+          </div>
         </div>
       )}
     </div>
