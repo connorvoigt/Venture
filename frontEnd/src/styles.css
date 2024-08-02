@@ -218,4 +218,15 @@ body {
     font-size: 1.5rem;
     margin-left: 1rem;
   }
+  .search-button-2{
+    padding: 10px 20px;
+    background-color: #ff9900;
+    color: rgb(81, 81, 81);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.search-button-2:hover{
+  background-color: #c57600;
+}
   
