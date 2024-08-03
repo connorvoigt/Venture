@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Backend Scripts
 
-From the repository's root directory, install the dependencies in 'requirements.txt'
+From the repository's root directory, install the dependencies in **requirements.txt**
 
 In the backend directory, you can run:
 
