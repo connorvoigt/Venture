@@ -8,7 +8,11 @@ In the backend directory, you can run:
 
 ### 'python scrapeApp.py'
 
-Starts the backend server.
+Starts the backend server for the GoOut application.
+
+### 'python backend.py'
+
+Starts the backend server for the StayIn application.
 
 ## Frontend Scripts
 
